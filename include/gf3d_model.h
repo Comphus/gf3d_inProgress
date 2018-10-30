@@ -34,6 +34,7 @@ typedef struct
     Uint8                       _inuse;
     Uint32                      _refcount;
     TextLine                    filename;
+	TextLine					file_texture;
     Mesh                    *   mesh;
     Texture                 *   texture;
     VkDescriptorPool            descriptorPool;
