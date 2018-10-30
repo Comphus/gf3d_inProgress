@@ -3,6 +3,8 @@
 #include "gf3d_vgraphics.h"
 #include "simple_logger.h"
 #include "gf3d_obj_load.h"
+#define snprintf _snprintf
+
 
 typedef struct
 {
@@ -105,7 +107,7 @@ void gf3d_model_setup(Model *model)
     gf3d_model_create_descriptor_sets(model);
 }
 
-Model * gf3d_model_load(char * filename)
+Model * gf3d_model_load(char * filename, char * file_texture)
 {
     TextLine assetname;
     Model *model;
@@ -116,7 +118,7 @@ Model * gf3d_model_load(char * filename)
     snprintf(assetname,GF3DLINELEN,"models/%s.obj",filename);
     model->mesh = gf3d_mesh_load(assetname);
 
-    snprintf(assetname,GF3DLINELEN,"images/%s.png",filename);
+    snprintf(assetname,GF3DLINELEN,"images/%s.png",file_texture);
     model->texture = gf3d_texture_load(assetname);
     
     gf3d_model_setup(model);

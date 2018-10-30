@@ -524,7 +524,7 @@ Bool gf3d_vgraphics_device_validate(VkPhysicalDevice device)
     slog("apiVersion: %i",deviceProperties.apiVersion);
     slog("driverVersion: %i",deviceProperties.driverVersion);
     slog("supports Geometry Shader: %i",deviceFeatures.geometryShader);
-    return (deviceProperties.deviceType == GF3D_VGRAPHICS_DISCRETE)&&(deviceFeatures.geometryShader);
+	//return (deviceProperties.deviceType == GF3D_VGRAPHICS_DISCRETE) || (deviceFeatures.geometryShader);
 }
 
 VkPhysicalDevice gf3d_vgraphics_select_device()
@@ -706,16 +706,52 @@ void gf3d_vgraphics_update_uniform_buffer(uint32_t currentImage)
     vkUnmapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage]);
 }
 
-void gf3d_vgraphics_rotate_camera(float degrees)
+void gf3d_vgraphics_rotate_cameraX(float degrees)
 {
-    gf3d_matrix_rotate(
-        gf3d_vgraphics.ubo.model,
-        gf3d_vgraphics.ubo.model,
-        degrees,
-        vector3d(0,0,1));
+	gf3d_matrix_rotate(
+		gf3d_vgraphics.ubo.model,
+		gf3d_vgraphics.ubo.model,
+		degrees,
+		vector3d(0, 0, 1));
 
 }
+void gf3d_vgraphics_rotate_cameraY(float degrees)
+{
+	gf3d_matrix_rotate(
+		gf3d_vgraphics.ubo.model,
+		gf3d_vgraphics.ubo.model,
+		degrees,
+		vector3d(0, 1, 0));
 
+}
+void gf3d_vgraphics_rotate_cameraZ(float degrees)
+{
+	gf3d_matrix_rotate(
+		gf3d_vgraphics.ubo.model,
+		gf3d_vgraphics.ubo.model,
+		degrees,
+		vector3d(1, 0, 0));
+
+}
+void zoom(float adds)
+{
+	gf3d_matrix_view(
+		gf3d_vgraphics.ubo.view,
+		vector3d(2 + adds, 20 + adds, 2 + adds),
+		vector3d(0, 0, 0),
+		vector3d(0, 0, 1)
+		);
+}
+void fovZoom(float adds)
+{
+	gf3d_matrix_perspective(
+		gf3d_vgraphics.ubo.view,
+		100+adds,
+		16/9,
+		0,
+		100
+		);
+}
 Pipeline *gf3d_vgraphics_get_graphics_pipeline()
 {
     return gf3d_vgraphics.pipe;

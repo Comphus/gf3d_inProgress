@@ -1,0 +1,20 @@
+c:\it485 - 3d game dev\gf3d-master\src\game.c:16: gf3d begin
+c:\it485 - 3d game dev\gf3d-master\src\game.c:16: gf3d begin
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:68: Total available instance extensions: 10
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_surface
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_win32_surface
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_get_physical_device_properties2
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_get_surface_capabilities2
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_external_memory_capabilities
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_device_group_creation
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_external_semaphore_capabilities
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_KHR_external_fence_capabilities
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_EXT_debug_report
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_extensions.c:81: available instance extension: VK_EXT_debug_utils
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_vgraphics.c:172: SDL Vulkan extensions support: VK_KHR_surface
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_vgraphics.c:172: SDL Vulkan extensions support: VK_KHR_win32_surface
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_validation.c:26: discovered 4 validation layers
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_validation.c:37: Validation layer available: VK_LAYER_AMD_switchable_graphics
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_validation.c:37: Validation layer available: VK_LAYER_RENDERDOC_Capture
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_validation.c:37: Validation layer available: VK_LAYER_VALVE_steam_overlay
+c:\it485 - 3d game dev\gf3d-master\src\gf3d_validation.c:37: Validation layer available: VK_LAYER_LUNARG_standard_validation
