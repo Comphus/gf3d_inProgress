@@ -42,6 +42,14 @@ void gf3d_vgraphics_copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
 
 uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
+void gf3d_vgraphics_update_uniform_buffer_object(UniformBufferObject *ubo, uint32_t currentImage);
+
+void gf3d_vgraphics_rotate_modelX(UniformBufferObject *ubo, float degrees);
+
+void gf3d_vgraphics_rotate_modelY(UniformBufferObject *ubo, float degrees);
+
+void gf3d_vgraphics_rotate_modelZ(UniformBufferObject *ubo, float degrees);
+
 void gf3d_vgraphics_rotate_cameraX(float degrees);
 
 void gf3d_vgraphics_rotate_cameraY(float degrees);
@@ -53,6 +61,8 @@ void zoom(float degrees);
 void fovZoom(float degrees);
 
 VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index);
+
+int gf3d_vgraphics_get_ubo_index(VkBuffer buffer);
 
 Pipeline *gf3d_vgraphics_get_graphics_pipeline();
 
