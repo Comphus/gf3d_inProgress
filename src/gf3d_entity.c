@@ -2,6 +2,7 @@
 #include <string.h>
 #include "gf3d_entity.h"
 #include "gf3d_model.h"
+#include "gf3d_vgraphics.h"
 #include "simple_logger.h"
 
 typedef struct
@@ -53,7 +54,6 @@ void gf3d_entity_system_init(Uint32 maxEntities)
 
 void gf3d_entity_free(Entity *self)
 {
-	//int i;     -- will re implement this after common deliverables are due
 	if (!self)return;
 	if (self->free)self->free(self);
 	/*
@@ -94,13 +94,34 @@ Entity *gf3d_entity_new()
 	return NULL;
 }
 
-void *gf3d_entity_load(char * model, char * texture)
+Entity *gf3d_entity_load(char * model, char * texture)
 {
 	Entity *ent;
 	ent = gf3d_entity_new();
 	if (!ent)return;
 
 	ent->model = gf3d_model_load(model, texture);
+	//essentially gf3d_vgraphics_init code
+	gf3d_matrix_identity(ent->ubo.model);
+	gf3d_matrix_identity(ent->ubo.view);
+	gf3d_matrix_identity(ent->ubo.proj);
+	gf3d_matrix_view(
+		ent->ubo.view,
+		vector3d(2, 20, 2),
+		vector3d(0, 0, 0),
+		vector3d(0, 0, 1)
+	);
+	gf3d_matrix_perspective(
+		ent->ubo.proj,
+		45 * GF3D_DEGTORAD,
+		1600 / (float)900,
+		0.1f,
+		100
+	);
+	ent->ubo.proj[1][1] *= -1;
+	//need to be able to increase and decrease size of model
+	ent->scale = 1.0;
+
 	return ent;
 }
 
@@ -110,10 +131,22 @@ void gf3d_entity_update(Entity *self)
 	if (!self)return;
 	if (!self->inuse)return;
 
-	gf3d_matrix_identity(self->ubo.model);
-	gf3d_matrix_make_translation(self->ubo.model, self->position);
+	self->ubo.model[0][0] *= self->scale;
+	self->ubo.model[1][1] *= self->scale;
+	self->ubo.model[2][2] *= self->scale;
+	self->scale = 1;
 
-	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, 0.05f, self->rotation);
+	//model position
+	self->ubo.model[3][0] = self->position.x;
+	self->ubo.model[3][1] = self->position.y;
+	self->ubo.model[3][2] = self->position.z;
+
+	//model rotations
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.x, vector3d(1, 0, 0));
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.y, vector3d(0, 1, 0));
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.z, vector3d(0, 0, 1));
+
+	memset(&self->currentRotation, 0, sizeof(Vector3D));
 
 	if (self->update)
 	{
@@ -137,6 +170,27 @@ void gf3d_entity_draw(Entity *self, Uint32 bufferFrame, VkCommandBuffer commandB
 {
 	if (!self)return;
 
+	//model scale
+	self->ubo.model[0][0] *= self->scale;
+	self->ubo.model[1][1] *= self->scale;
+	self->ubo.model[2][2] *= self->scale;
+	self->scale = 1;
+
+	//model position
+	self->ubo.model[3][0] = self->position.x;
+	self->ubo.model[3][1] = self->position.y;
+	self->ubo.model[3][2] = self->position.z;
+
+	//model rotations
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.x, vector3d(1, 0, 0));
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.y, vector3d(0, 1, 0));
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.z, vector3d(0, 0, 1));
+
+	memset(&self->currentRotation, 0, sizeof(Vector3D));
+	/*having trouble manipulating model positions and such*/
+	//gf3d_vgraphics_update_uniform_buffer_object(&self->ubo, gf3d_vgraphics_get_ubo_index(self->model->ubo));
+
+	//create model
 	gf3d_model_draw(self->model, bufferFrame, commandBuffer);
 }
 
