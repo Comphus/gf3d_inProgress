@@ -20,8 +20,8 @@ int main(int argc,char *argv[])
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
-    Model *model;
-    Model *model2;
+    Entity *model;
+    Entity *model2;
     
     init_logger("gf3d.log");    
     slog("gf3d begin");
@@ -41,21 +41,24 @@ int main(int argc,char *argv[])
     model = gf3d_model_load("agumon","nrt");
     model2 = gf3d_model_load("lumberJack","cube");
 	*/
-	//model = gf3d_entity_load("agumon", "nrt");
-	model2 = gf3d_entity_load("lumberJack", "cube");
+	model = gf3d_entity_load("agumon", "nrt");
+	//model2 = gf3d_entity_load("lumberJack", "cube");
+	model->position.x = 1.0;
+	model->position.y = 1.0;
+	model->position.z = 1.0;
 	while (!done)
 	{
 		SDL_PumpEvents();   // update SDL's internal event structures
 		keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
 		//update game things here
 
-		gf3d_vgraphics_rotate_cameraX(0.001);
+		//gf3d_vgraphics_rotate_cameraX(0.001);
 
 		// configure render command for graphics command pool
 		// for each mesh, get a command and configure it from the pool
 		bufferFrame = gf3d_vgraphics_render_begin();
 		commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-		//gf3d_entity_update_all(); not needed yet
+		gf3d_entity_update_all();
 		gf3d_entity_draw_all(bufferFrame, commandBuffer);
 
 		/*
@@ -90,15 +93,9 @@ int main(int argc,char *argv[])
 			zoomCamera--;
 			zoom(zoomCamera);
 		}
-
-
 		if (keys[SDL_SCANCODE_T]){
-			zoomFov++;
-			fovZoom(zoomFov);
-		}
-		if (keys[SDL_SCANCODE_G]){
-			zoomFov--;
-			fovZoom(zoomFov);
+			model->position.x += 1.0;
+			//gf3d_vgraphics_rotate_modelX(model, 0.1);
 		}
 		if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
     }    

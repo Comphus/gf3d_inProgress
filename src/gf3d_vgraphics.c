@@ -331,6 +331,16 @@ VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index)
     return gf3d_vgraphics.uniformBuffers[index];
 }
 
+int gf3d_vgraphics_get_ubo_index(VkBuffer buffer){
+	int i;
+	for (i = 0; i < 100; i++){
+		if (buffer == gf3d_vgraphics.uniformBuffers[i]){
+			return i;
+		}
+	}
+	return -1;
+}
+
 void gf3d_vgraphics_create_uniform_buffer()
 {
     int i;
@@ -705,6 +715,45 @@ void gf3d_vgraphics_update_uniform_buffer(uint32_t currentImage)
 
     vkUnmapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage]);
 }
+//same as above code except modified to accomidate models
+void gf3d_vgraphics_update_uniform_buffer_object(UniformBufferObject *ubo, uint32_t currentImage)
+{
+	void* data;
+	vkMapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
+
+		memcpy(data, ubo, sizeof(UniformBufferObject));
+
+	vkUnmapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage]);
+}
+
+void gf3d_vgraphics_rotate_modelX(UniformBufferObject *ubo, float degrees)
+{
+	gf3d_matrix_rotate(
+		ubo->model,
+		ubo->model,
+		degrees,
+		vector3d(1, 0, 0));
+
+}
+void gf3d_vgraphics_rotate_modelY(UniformBufferObject *ubo, float degrees)
+{
+	gf3d_matrix_rotate(
+		ubo->model,
+		ubo->model,
+		degrees,
+		vector3d(0, 1, 0));
+
+}
+void gf3d_vgraphics_rotate_modelZ(UniformBufferObject *ubo, float degrees)
+{
+	gf3d_matrix_rotate(
+		ubo->model,
+		ubo->model,
+		degrees,
+		vector3d(0, 0, 1));
+
+}
+
 
 void gf3d_vgraphics_rotate_cameraX(float degrees)
 {
