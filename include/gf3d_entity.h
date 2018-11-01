@@ -32,12 +32,15 @@ typedef struct Entity_S
 
 	TextLine Name;
 	EntityState state;
+	float scale;
 
 	/*physics*/
 	Vector3D position;
 	Vector3D rotation;
+	Vector3D currentRotation;
 	Vector3D velocity;
 	Vector3D acceleration;
+	Vector3D axis;
 
 	/*model and mesh*/
 	Uint32 bufferFrame;
@@ -72,23 +75,45 @@ void gf3d_entity_system_init(Uint32 maxEntities);
 */
 Entity *gf3d_entity_new();
 
-void *gf3d_entity_load(char *model, char *texture);
+/**
+* @brief load entity data into entity system
+* @returns entity object
+* @param model the model being loaded in
+* @param texture the texture being loaded in
+*/
+Entity *gf3d_entity_load(char *model, char *texture);
 
+/**
+* @brief frees an entity
+*/
 void gf3d_entity_free(Entity *self);
 
-
+/**
+* @brief frees all entities in the entity system
+*/
 void gf3d_entity_free_all();
 
-
+/**
+* @brief draws an entity to be displayed on screen
+* @param self the entity being passed
+* @param bufferFrame the buffer frame
+* @param commandBuffer the command buffer
+*/
 void gf3d_entity_draw(Entity *self, Uint32 bufferFrame, VkCommandBuffer commandBuffer);
 
-
+/**
+* @brief draws all entities in the entity system system
+*/
 void gf3d_entity_draw_all(Uint32 bufferFrame, VkCommandBuffer commandBuffer);
 
-
+/**
+* @brief not implemented yet, takes in input for the entity to respond to
+*/
 void gf3d_entity_think_all();
 
-
+/**
+* @brief updates the positions and axes of all entities
+*/
 void gf3d_entity_update_all();
 
 
