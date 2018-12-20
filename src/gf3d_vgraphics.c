@@ -21,6 +21,7 @@
 #include "gf3d_commands.h"
 #include "gf3d_texture.h"
 #include "gf3d_matrix.h"
+#include "gf3d_entity.h"
 
 #include "simple_logger.h"
 
@@ -333,7 +334,7 @@ VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index)
 
 int gf3d_vgraphics_get_ubo_index(VkBuffer buffer){
 	int i;
-	for (i = 0; i < 100; i++){
+	for (i = 0; i < 1024; i++){
 		if (buffer == gf3d_vgraphics.uniformBuffers[i]){
 			return i;
 		}
@@ -726,22 +727,22 @@ void gf3d_vgraphics_update_uniform_buffer_object(UniformBufferObject *ubo, uint3
 	vkUnmapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage]);
 }
 
-void gf3d_vgraphics_rotate_modelX(UniformBufferObject *ubo, float degrees)
+void gf3d_vgraphics_rotate_modelX(UniformBufferObject *ubo, float x, float y, float z)
 {
-	gf3d_matrix_rotate(
-		ubo->model,
-		ubo->model,
-		degrees,
-		vector3d(1, 0, 0));
+	gf3d_matrix_view(
+		gf3d_vgraphics.ubo.model,
+		vector3d(1+x , 1+y , 1+z),
+		vector3d(0, 1, 0),
+		vector3d(1, 1, 0));
 
 }
-void gf3d_vgraphics_rotate_modelY(UniformBufferObject *ubo, float degrees)
+void gf3d_vgraphics_rotate_modelY(Entity *ent, float x, float y, float z)
 {
-	gf3d_matrix_rotate(
-		ubo->model,
-		ubo->model,
-		degrees,
-		vector3d(0, 1, 0));
+	gf3d_matrix_view(
+		ent->ubo.model,
+		vector3d(0 + x, 0 + y, 0 + z),
+		vector3d(0, 0, 0),
+		vector3d(0, 0, 1));
 
 }
 void gf3d_vgraphics_rotate_modelZ(UniformBufferObject *ubo, float degrees)
@@ -773,11 +774,13 @@ void gf3d_vgraphics_rotate_cameraY(float degrees)
 		vector3d(0, 1, 0));
 
 }
-void gf3d_vgraphics_rotate_cameraZ(float degrees)
+void gf3d_vgraphics_rotate_cameraZ(Entity *ent,float degrees)
 {
 	gf3d_matrix_rotate(
-		gf3d_vgraphics.ubo.model,
-		gf3d_vgraphics.ubo.model,
+		//gf3d_vgraphics.ubo.model,
+		//gf3d_vgraphics.ubo.model,
+		ent->ubo.model,
+		ent->ubo.model,
 		degrees,
 		vector3d(1, 0, 0));
 
@@ -786,7 +789,7 @@ void zoom(float adds)
 {
 	gf3d_matrix_view(
 		gf3d_vgraphics.ubo.view,
-		vector3d(2 + adds, 20 + adds, 2 + adds),
+		vector3d(2 + adds, 2 + adds, 2 + adds),
 		vector3d(0, 0, 0),
 		vector3d(0, 0, 1)
 		);

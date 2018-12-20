@@ -15,13 +15,19 @@ int main(int argc,char *argv[])
 {
     int done = 0;
 	int zoomCamera = 0;
-	int zoomFov = 0;
-	int mx, my;
+	float zoomFov = 0.001;
+	float spaceBar = 0.0;
+	int spaceDown = 0;
+	float mx, my;
+	float sens;
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
-    Entity *model;
-    Entity *model2;
+    Entity *ent;
+    Entity *ent2;
+	Entity *ent3;
+	Model *model;
+	SDL_Event event;
     
     init_logger("gf3d.log");    
     slog("gf3d begin");
@@ -41,15 +47,18 @@ int main(int argc,char *argv[])
     model = gf3d_model_load("agumon","nrt");
     model2 = gf3d_model_load("lumberJack","cube");
 	*/
-	model = gf3d_entity_load("agumon", "nrt");
-	//model2 = gf3d_entity_load("lumberJack", "cube");
-	model->position.x = 1.0;
-	model->position.y = 1.0;
-	model->position.z = 1.0;
+	ent = gf3d_entity_load("agumon", "nrt");
+	ent2 = gf3d_entity_load("lumberJack", "cube");
+	//ent3 = gf3d_entity_load("woodenbox", "lumber");
+	
+	sens = 0.04;
+	mx = 0.0;
+	my = 0.0;
 	while (!done)
 	{
 		SDL_PumpEvents();   // update SDL's internal event structures
 		keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+		SDL_PollEvent(&event);
 		//update game things here
 
 		//gf3d_vgraphics_rotate_cameraX(0.001);
@@ -59,44 +68,112 @@ int main(int argc,char *argv[])
 		bufferFrame = gf3d_vgraphics_render_begin();
 		commandBuffer = gf3d_command_rendering_begin(bufferFrame);
 		gf3d_entity_update_all();
-		gf3d_entity_draw_all(bufferFrame, commandBuffer);
+		gf3d_entity_draw_all(bufferFrame, commandBuffer, bufferFrame);
+		gf3d_entity_think_all(keys);
 
 		/*
 		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-			gf3d_model_draw(model2, bufferFrame, commandBuffer);
+		gf3d_model_draw(model2, bufferFrame, commandBuffer);
 		}
 		else{
-			gf3d_model_draw(model, bufferFrame, commandBuffer);
+		gf3d_model_draw(model, bufferFrame, commandBuffer);
 		}
 		*/
 		//gf3d_vgraphics_rotate_cameraX(SDL_GetRelativeMouseState)
+		if (keys[SDL_SCANCODE_T]){
+			gf3d_vgraphics_rotate_modelY(ent, zoomFov, zoomFov, zoomFov);
+			//model->ubo.model[3][0] += 1.0;
+			//model->position.x += 1.0;
+			//model->ubo.model[3][0] = zoomFov;
+			//model->ubo.model[3][1] = zoomFov;
+			//model->ubo.model[3][2] = zoomFov;
+			zoomFov += 0.01;
+		}
+		if (keys[SDL_SCANCODE_G]){
+			gf3d_vgraphics_rotate_modelX(ent->ubo.model, zoomFov, zoomFov, zoomFov);
+			//model->ubo.model[3][0] += 1.0;
+			//model->position.x += 1.0;
+			//model->ubo.model[3][0] = zoomFov;
+			//model->ubo.model[3][1] = zoomFov;
+			//model->ubo.model[3][2] = zoomFov;
+			zoomFov -= 0.01;
+		}
+		if (spaceBar != 0.0){
+			
+			if (spaceBar < 0.60 && spaceDown == 0){
+				spaceBar += 0.01;
+			}
+			if (spaceBar >= 0.60){
+				spaceDown = 1;
+			}
+			if (spaceDown == 1){
+				spaceBar -= 0.01;
+				if (spaceBar <= 0.0){
+					spaceDown = 0;
+					spaceBar = 0.0;
+				}
+			}
+			gf3d_vgraphics_rotate_modelX(ent->ubo.model, spaceBar, spaceBar, spaceBar);
+		}
+		if (keys[SDL_SCANCODE_SPACE] && spaceBar <= 0.0){
+			spaceBar += 0.02;
+		}
+		//gf3d_model_draw(model, bufferFrame, commandBuffer);
 
 		gf3d_command_rendering_end(commandBuffer);
 		gf3d_vgraphics_render_end(bufferFrame);
 
 
 		/*rotation stuff*/
-		if (keys[SDL_SCANCODE_A])gf3d_vgraphics_rotate_cameraX(0.1);
-		if (keys[SDL_SCANCODE_D])gf3d_vgraphics_rotate_cameraX(-0.1);
+		//mx = event.motion.xrel;
+		//my = event.motion.yrel;
+		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+			if (event.motion.xrel > mx){
+				gf3d_vgraphics_rotate_cameraX(sens);
+				//mx = event.motion.xrel;
+			}
+			if (event.motion.xrel < mx){
+				gf3d_vgraphics_rotate_cameraX(-1 * sens);
+				//mx = event.motion.xrel;
+			}
+			if (event.motion.yrel > my){
+				gf3d_vgraphics_rotate_cameraY(sens);
+				//my = event.motion.y;
+			}
+			if (event.motion.yrel < my){
+				gf3d_vgraphics_rotate_cameraY(-1 * sens);
+				//my = event.motion.y;
+			}
+		}
+		if (keys[SDL_SCANCODE_LEFTBRACKET])sens -= 0.005;
+		if (keys[SDL_SCANCODE_RIGHTBRACKET])sens += 0.005;
 
-		if (keys[SDL_SCANCODE_W])gf3d_vgraphics_rotate_cameraY(0.1);
-		if (keys[SDL_SCANCODE_S])gf3d_vgraphics_rotate_cameraY(-0.1);
+		if (keys[SDL_SCANCODE_A])gf3d_vgraphics_rotate_cameraX(sens);
+		if (keys[SDL_SCANCODE_D])gf3d_vgraphics_rotate_cameraX(-1 * sens);
 
-		if (keys[SDL_SCANCODE_Q])gf3d_vgraphics_rotate_cameraZ(0.1);
-		if (keys[SDL_SCANCODE_E])gf3d_vgraphics_rotate_cameraZ(-0.1);
+		if (keys[SDL_SCANCODE_W])gf3d_vgraphics_rotate_cameraY(sens);
+		if (keys[SDL_SCANCODE_S])gf3d_vgraphics_rotate_cameraY(-1 * sens);
+
+		if (keys[SDL_SCANCODE_Q])gf3d_vgraphics_rotate_cameraZ(ent, 0.1);
+		if (keys[SDL_SCANCODE_E])gf3d_vgraphics_rotate_cameraZ(ent, -0.1);
 		
-		if (keys[SDL_SCANCODE_R]){
-			zoomCamera++;
-			zoom(zoomCamera);
+		if (event.type == SDL_MOUSEWHEEL){
+			if (event.wheel.y < 0){
+					zoomCamera++;
+					zoom(zoomCamera);
+				}
+			if (event.wheel.y > 0){
+					zoomCamera--;
+					zoom(zoomCamera);
+				}
+			event.wheel.y = 0;
 		}
-		if (keys[SDL_SCANCODE_F]){
-			zoomCamera--;
-			zoom(zoomCamera);
+
+		/*
+		if (keys[SDL_SCANCODE_G]){
+			gf3d_entity_free(model);
 		}
-		if (keys[SDL_SCANCODE_T]){
-			model->position.x += 1.0;
-			//gf3d_vgraphics_rotate_modelX(model, 0.1);
-		}
+		*/
 		if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
     }    
     

@@ -2,7 +2,9 @@
 #include <string.h>
 #include "gf3d_entity.h"
 #include "gf3d_model.h"
+#include "gf3d_matrix.h"
 #include "gf3d_vgraphics.h"
+#include "SDL.h"
 #include "simple_logger.h"
 
 typedef struct
@@ -13,6 +15,10 @@ typedef struct
 }EntityManager;
 
 static EntityManager entity_manager = { 0 };
+
+Uint8 * e_keys;
+float testStuff;
+testStuff = 0;
 
 void gf3d_entity_system_close()
 {
@@ -102,7 +108,12 @@ Entity *gf3d_entity_load(char * model, char * texture)
 
 	ent->model = gf3d_model_load(model, texture);
 	//essentially gf3d_vgraphics_init code
+	
 	gf3d_matrix_identity(ent->ubo.model);
+	
+	
+	//gf3d_model_manager_init(1024, gf3d_swapchain_get_swap_image_count(), device);
+	
 	gf3d_matrix_identity(ent->ubo.view);
 	gf3d_matrix_identity(ent->ubo.proj);
 	gf3d_matrix_view(
@@ -119,6 +130,9 @@ Entity *gf3d_entity_load(char * model, char * texture)
 		100
 	);
 	ent->ubo.proj[1][1] *= -1;
+	gf3d_mesh_init(1024);//TODO: pull this from a parameter
+	gf3d_texture_init(1024);
+	
 	//need to be able to increase and decrease size of model
 	ent->scale = 1.0;
 
@@ -166,10 +180,11 @@ void gf3d_entity_update_all()
 	}
 }
 
-void gf3d_entity_draw(Entity *self, Uint32 bufferFrame, VkCommandBuffer commandBuffer)
+void gf3d_entity_draw(Entity *self, Uint32 bufferFrame, VkCommandBuffer commandBuffer, Uint32 imageIndex)
 {
 	if (!self)return;
-
+	/*
+	//taken from matrix.c
 	//model scale
 	self->ubo.model[0][0] *= self->scale;
 	self->ubo.model[1][1] *= self->scale;
@@ -177,33 +192,81 @@ void gf3d_entity_draw(Entity *self, Uint32 bufferFrame, VkCommandBuffer commandB
 	self->scale = 1;
 
 	//model position
-	self->ubo.model[3][0] = self->position.x;
+	self->ubo.model[3][0] = testStuff;
 	self->ubo.model[3][1] = self->position.y;
 	self->ubo.model[3][2] = self->position.z;
 
 	//model rotations
-	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.x, vector3d(1, 0, 0));
+	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, testStuff, vector3d(1, 0, 0));
 	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.y, vector3d(0, 1, 0));
 	gf3d_matrix_rotate(self->ubo.model, self->ubo.model, self->currentRotation.z, vector3d(0, 0, 1));
 
 	memset(&self->currentRotation, 0, sizeof(Vector3D));
-	/*having trouble manipulating model positions and such*/
-	//gf3d_vgraphics_update_uniform_buffer_object(&self->ubo, gf3d_vgraphics_get_ubo_index(self->model->ubo));
-
+	/*having trouble manipulating model positions and such
+	
+	gf3d_vgraphics_update_uniform_buffer(imageIndex);
+	*/
 	//create model
 	gf3d_model_draw(self->model, bufferFrame, commandBuffer);
+	//testStuff += 50.0;
 }
 
-void gf3d_entity_draw_all(Uint32 bufferFrame, VkCommandBuffer commandBuffer)
+void gf3d_entity_draw_all(Uint32 bufferFrame, VkCommandBuffer commandBuffer, Uint32 imageIndex)
 {
 	int i;
-
 	for (i = 0; i < entity_manager.maxEntities; i++)
 	{
 		if (entity_manager.entityList[i].inuse == 0) continue;
 			if (!entity_manager.entityList[i].model) continue;
-				gf3d_entity_draw(&entity_manager.entityList[i], bufferFrame, commandBuffer);
+				gf3d_entity_draw(&entity_manager.entityList[i], bufferFrame, commandBuffer, imageIndex);
 	}
 
 	//entity_render_end_all();
+}
+
+void gf3d_entity_think(Entity *self, Uint8 * key){
+	
+	
+	if (!self)return;
+	
+	SDL_PumpEvents();   // update SDL's internal event structures
+	key = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+
+	if (e_keys[SDL_SCANCODE_Z]){
+		gf3d_matrix_rotate(
+			self->ubo.model,
+			self->ubo.model,
+			testStuff,
+			vector3d(0, 0, 1));
+	}
+	if (e_keys[SDL_SCANCODE_D])gf3d_vgraphics_rotate_cameraX(-0.1);
+
+	if (e_keys[SDL_SCANCODE_W])gf3d_vgraphics_rotate_cameraY(0.1);
+	if (e_keys[SDL_SCANCODE_S])gf3d_vgraphics_rotate_cameraY(-0.1);
+
+	//if (e_keys[SDL_SCANCODE_Q])gf3d_vgraphics_rotate_cameraZ(ent, 0.1);
+	//if (e_keys[SDL_SCANCODE_E])gf3d_vgraphics_rotate_cameraZ(ent, -0.1);
+
+	if (self->think)
+	{
+		self->think(self);
+	}
+
+	testStuff += 0.03;
+}
+
+void gf3d_entity_think_all(Uint8 * key)
+{
+	int i;
+	e_keys = key;
+	for (i = 0; i < entity_manager.maxEntities; i++)
+	{
+		if (entity_manager.entityList[i].inuse == 0)continue;
+		if (entity_manager.entityList[i].think != NULL)
+		{
+			gf3d_entity_think(&entity_manager.entityList[i], e_keys);
+			entity_manager.entityList[i].think(&entity_manager.entityList[i]);
+			
+		}
+	}
 }

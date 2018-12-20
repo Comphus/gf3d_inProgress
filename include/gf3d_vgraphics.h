@@ -7,6 +7,7 @@
 #include "gf3d_matrix.h"
 #include "gf3d_pipeline.h"
 #include "gf3d_commands.h"
+#include "gf3d_entity.h"
 
 #define GF3D_VGRAPHICS_DISCRETE 1   //Choosing whether to use discrete [1] or integrated graphics [0]
 
@@ -44,9 +45,9 @@ uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFl
 
 void gf3d_vgraphics_update_uniform_buffer_object(UniformBufferObject *ubo, uint32_t currentImage);
 
-void gf3d_vgraphics_rotate_modelX(UniformBufferObject *ubo, float degrees);
+void gf3d_vgraphics_rotate_modelX(UniformBufferObject *ubo, float x, float y, float z);
 
-void gf3d_vgraphics_rotate_modelY(UniformBufferObject *ubo, float degrees);
+void gf3d_vgraphics_rotate_modelY(Entity *ent, float x, float y, float z);
 
 void gf3d_vgraphics_rotate_modelZ(UniformBufferObject *ubo, float degrees);
 
@@ -54,7 +55,7 @@ void gf3d_vgraphics_rotate_cameraX(float degrees);
 
 void gf3d_vgraphics_rotate_cameraY(float degrees);
 
-void gf3d_vgraphics_rotate_cameraZ(float degrees);
+void gf3d_vgraphics_rotate_cameraZ(Entity *ent, float degrees);
 
 void zoom(float degrees);
 

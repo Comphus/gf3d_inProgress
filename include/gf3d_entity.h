@@ -28,6 +28,7 @@ typedef enum
 typedef struct Entity_S
 {
 	Uint8 inuse;
+	const Uint8 keys;
 	Uint32 id;
 
 	TextLine Name;
@@ -45,8 +46,8 @@ typedef struct Entity_S
 	/*model and mesh*/
 	Uint32 bufferFrame;
 	VkCommandBuffer commandBuffer;
-	UniformBufferObject ubo;
 	Model *model;
+	UniformBufferObject ubo;
 
 	void(*draw)(struct Entitys_S *self);
 	void(*think)(struct Entity_S *self);
@@ -106,10 +107,13 @@ void gf3d_entity_draw(Entity *self, Uint32 bufferFrame, VkCommandBuffer commandB
 */
 void gf3d_entity_draw_all(Uint32 bufferFrame, VkCommandBuffer commandBuffer);
 
+
+
+void gf3d_entity_think(Entity *self);
 /**
 * @brief not implemented yet, takes in input for the entity to respond to
 */
-void gf3d_entity_think_all();
+void gf3d_entity_think_all(Uint8 key);
 
 /**
 * @brief updates the positions and axes of all entities
